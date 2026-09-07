@@ -1,0 +1,1447 @@
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<base target="_top">
+<title>Audit M8</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--s1:#161b22;--s2:#21262d;--s3:#2d333b;
+  --bd:#30363d;--tx:#e6edf3;--mu:#8b949e;
+  --blue:#58a6ff;--green:#3fb950;--yellow:#d29922;
+  --red:#f85149;--purple:#bc8cff
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px}
+header{background:var(--s1);border-bottom:1px solid var(--bd);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;color:var(--tx)}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;flex-shrink:0}
+.logo-sub{font-size:11px;color:var(--mu);font-weight:400;margin-top:1px}
+.hdr-btns{display:flex;align-items:center;gap:8px}
+main{max-width:1340px;margin:0 auto;padding:20px 24px}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:18px}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--mu);margin-bottom:14px}
+.btn{padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:.15s;white-space:nowrap}
+.btn-blue{background:var(--blue);color:#0d1117}.btn-blue:hover{filter:brightness(1.12)}.btn-blue:disabled{opacity:.4;cursor:default;filter:none}
+.btn-ghost{background:transparent;border:1px solid var(--bd);color:var(--mu)}.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+.btn-green{background:var(--green);color:#0d1117}.btn-green:hover{filter:brightness(1.1)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--mu);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.field input,.field select{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-size:13px;transition:.15s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--blue);background:var(--s1)}
+.field input:disabled,.field select:disabled{opacity:.5;cursor:default}
+.hint{font-size:11px;color:#484f58;margin-top:4px;line-height:1.5}
+.hint a{color:var(--blue);text-decoration:none}.hint a:hover{text-decoration:underline}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:680px){.g2{grid-template-columns:1fr}}
+.alert{border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:16px;line-height:1.6}
+.alert-y{background:#1a1200;border:1px solid #4a3600;color:var(--yellow)}
+.alert-b{background:#0d1a2e;border:1px solid #1a3060;color:var(--blue)}
+.alert-g{background:#0d2010;border:1px solid #1e4d2b;color:var(--green)}
+.pbar-o{background:var(--s2);border-radius:4px;height:5px;margin:8px 0 12px}
+.pbar-i{height:100%;border-radius:4px;background:var(--blue);transition:width .4s ease}
+.plog{background:var(--s2);border-radius:6px;padding:10px 14px;max-height:150px;overflow-y:auto;font-size:11px;font-family:Consolas,monospace;line-height:1.9}
+.pl{color:var(--mu)}.pl.ok{color:var(--green)}.pl.warn{color:var(--yellow)}.pl.err{color:var(--red)}
+.loader{display:inline-block;width:13px;height:13px;border:2px solid var(--bd);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rl{display:grid;grid-template-columns:275px 1fr;gap:16px}
+@media(max-width:900px){.rl{grid-template-columns:1fr}}
+.sidebar{display:flex;flex-direction:column;gap:14px}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #1c2128;font-size:13px}
+.srow:last-child{border:none}
+.sval{font-weight:700;color:var(--blue);text-align:right;max-width:160px;font-size:12px;word-break:break-all}
+.score-ring{display:inline-block;position:relative;width:90px;height:90px}
+.score-ring svg{transform:rotate(-90deg)}
+.r-bg{fill:none;stroke:var(--s2);stroke-width:8}
+.r-fill{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:226;stroke-dashoffset:226;transition:stroke-dashoffset .9s,stroke .9s}
+.score-n{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:22px;font-weight:800}
+.tabs{display:flex;gap:3px;background:var(--s1);border:1px solid var(--bd);border-radius:8px;padding:4px;margin-bottom:16px;flex-wrap:wrap}
+.tab{flex:1;min-width:64px;padding:7px 8px;background:transparent;border:none;color:var(--mu);cursor:pointer;border-radius:6px;font-size:12px;font-weight:600;transition:.15s;text-align:center}
+.tab:hover:not(.active){color:var(--tx);background:var(--s2)}
+.tab.active{background:var(--blue);color:#0d1117}
+.tab .n{background:rgba(255,255,255,.15);border-radius:10px;padding:1px 6px;font-size:10px;margin-left:3px}
+.tab.active .n{background:rgba(0,0,0,.2)}
+.ev-card{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:12px;margin-bottom:8px;transition:.2s}
+.ev-card:hover{border-color:var(--blue);transform:translateY(-1px)}
+.ev-card[data-tagkey]{cursor:pointer}
+.ev-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+.ev-name{font-size:13px;font-weight:700;font-family:Consolas,monospace;word-break:break-all}
+.badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.b-ok{background:#0d2e1a;color:var(--green);border:1px solid #1e4d2b}
+.b-warn{background:#2a1f00;color:var(--yellow);border:1px solid #4a3600}
+.b-err{background:#2d0f0f;color:var(--red);border:1px solid #4d1a1a}
+.chip{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:var(--s3);border:1px solid var(--bd);color:var(--mu);margin:1px}
+.cg{background:#0d2e1a;border-color:#1e4d2b;color:var(--green)}
+.cr{background:#2d0f0f;border-color:#4d1a1a;color:var(--red)}
+.cy{background:#2a1f00;border-color:#4a3600;color:var(--yellow)}
+.cb{background:#0d1f3c;border-color:#1a3060;color:var(--blue)}
+.cp{background:#1e0d3c;border-color:#3a1a60;color:var(--purple)}
+.iss{padding:12px 14px;border-radius:8px;margin-bottom:10px;border-left:3px solid}
+.ic-c{background:#1a0808;border-color:var(--red)}
+.ic-w{background:#1a1200;border-color:var(--yellow)}
+.ic-i{background:#080e1a;border-color:var(--blue)}
+.iss-title{font-size:13px;font-weight:700;margin-bottom:6px}
+.iss-detail{font-size:12px;color:var(--tx);margin-bottom:7px;line-height:1.7;background:rgba(0,0,0,.2);border-radius:6px;padding:8px 12px}
+.iss-fix{font-size:12px;color:var(--green);line-height:1.5;display:flex;gap:7px;align-items:flex-start}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:8px 10px;background:var(--s2);color:var(--mu);font-weight:700;border-bottom:1px solid var(--bd);white-space:nowrap}
+.tbl td{padding:8px 10px;border-bottom:1px solid #1c2128;vertical-align:top;word-break:break-word}
+.tbl tr:hover td{background:rgba(88,166,255,.04)}
+pre.code{background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:12px;font-size:11px;overflow-x:auto;color:#94a3b8;line-height:1.7;white-space:pre-wrap;font-family:Consolas,monospace}
+.bar-wrap{display:inline-block;background:var(--s3);border-radius:3px;height:6px;width:90px;vertical-align:middle;margin-left:6px}
+.bar-fill{height:100%;border-radius:3px;background:var(--blue)}
+.rt-pulse{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:rtpulse 1.5s infinite}
+@keyframes rtpulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(63,185,80,.4)}50%{opacity:.6;box-shadow:0 0 0 5px rgba(63,185,80,0)}}
+.flex{display:flex;align-items:center;gap:8px}.mla{margin-left:auto}
+.empty{text-align:center;padding:50px 20px;color:var(--mu);font-size:14px;line-height:1.8}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+.dot-g{background:var(--green)}.dot-y{background:var(--yellow)}.dot-r{background:var(--red)}
+#toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--bd);padding:10px 18px;border-radius:8px;font-size:13px;z-index:9999;opacity:0;transform:translateY(12px);transition:.25s;pointer-events:none}
+#toast.show{opacity:1;transform:none}
+#toast.ok{border-color:var(--green);color:var(--green)}
+#toast.err{border-color:var(--red);color:var(--red)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:500;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal{background:var(--s1);border:1px solid var(--bd);border-radius:12px;width:100%;max-width:740px;margin:auto;box-shadow:0 24px 64px rgba(0,0,0,.7)}
+.modal-hdr{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--bd);border-radius:12px 12px 0 0;background:var(--s1)}
+.modal-hdr h3{font-size:15px;font-weight:700;flex:1;word-break:break-word}
+.modal-x{background:none;border:none;color:var(--mu);cursor:pointer;font-size:24px;line-height:1;padding:0 4px;border-radius:4px;flex-shrink:0}
+.modal-x:hover{background:var(--s2);color:var(--tx)}
+.modal-body{padding:20px;max-height:75vh;overflow-y:auto}
+.msec{margin-bottom:20px}
+.msec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--mu);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bd)}
+.prow{display:grid;grid-template-columns:155px 1fr;gap:8px;padding:7px 0;border-bottom:1px solid #1c2128;font-size:12px;align-items:start}
+.prow:last-child{border:none}
+.pkey{color:var(--mu);font-weight:600;word-break:break-word;padding-top:1px}
+.tpill{display:inline-flex;align-items:center;gap:5px;background:var(--s2);border:1px solid var(--bd);border-radius:20px;padding:3px 10px;font-size:12px;margin:2px}
+.raw-btn{background:none;border:1px solid var(--bd);color:var(--mu);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;margin-top:8px;transition:.15s;display:inline-block}
+.raw-btn:hover{border-color:var(--blue);color:var(--blue)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">M8</div>
+    <div><div>Audit M8</div><div class="logo-sub">GTM + GA4 Validator</div></div>
+  </div>
+  <div class="hdr-btns">
+    <button class="btn btn-ghost btn-sm" id="btn-reset" onclick="resetUI()" style="display:none">New</button>
+    <button class="btn btn-ghost btn-sm" id="btn-export" onclick="exportJSON()" style="display:none">Export</button>
+    <button class="btn btn-green btn-sm" id="btn-export-sheet" onclick="exportToSheet()" style="display:none">Export to Sheets</button>
+  </div>
+</header>
+
+<main>
+
+<!-- SETUP -->
+<div id="setup">
+  <div class="alert alert-y">
+    <strong>Note:</strong> Headless browser is not available in Google Apps Script.
+    Use the GA4 Realtime panel — open your site in another tab, trigger events, then Refresh.
+  </div>
+  <div class="g2">
+
+    <!-- GTM + GA4 -->
+    <div class="card">
+      <div class="card-title">1 — GTM Container</div>
+      <div class="field">
+        <label>Account</label>
+        <select id="sel-acc" onchange="loadContainers()"><option value="">Loading accounts...</option></select>
+      </div>
+      <div class="field">
+        <label>Container</label>
+        <select id="sel-con" disabled="" onchange="loadWorkspaces()"><option value="">—</option></select>
+      </div>
+      <div class="field">
+        <label>Workspace</label>
+        <select id="sel-ws" disabled=""><option value="">—</option></select>
+      </div>
+
+      <div style="border-top:1px solid var(--bd);margin:14px 0"></div>
+      <div class="card-title" style="margin-bottom:10px">GA4 Property</div>
+
+      <div class="field">
+        <label>Select GA4 Property</label>
+        <div class="flex" style="gap:8px">
+          <select id="sel-ga4prop" style="flex:1" onchange="onGA4PropSelect()">
+            <option value="">— click Load to find properties —</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" id="btn-load-props" onclick="loadGA4Properties()">Load</button>
+        </div>
+        <div class="hint" id="ga4prop-hint">Loads all GA4 properties you have access to.</div>
+      </div>
+      <div class="field">
+        <label>Property ID <span style="color:var(--mu);text-transform:none;font-weight:400">(or paste manually)</span></label>
+        <input type="text" id="in-ga4id" placeholder="properties/123456789">
+        <div class="hint">Auto-filled when you select above. Format: <code style="color:var(--blue)">properties/XXXXXXXXX</code></div>
+      </div>
+    </div>
+
+    <!-- Groq -->
+    <div class="card">
+      <div class="card-title">2 — Groq AI (Free)</div>
+      <div class="alert alert-g" style="padding:10px 14px;font-size:12px;margin-bottom:14px">
+        Groq is completely free — no credit card needed.<br>
+        Get key at <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a>
+      </div>
+      <div class="field">
+        <label>Groq API Key</label>
+        <input type="password" id="in-key" placeholder="gsk_...">
+        <div class="hint">Starts with gsk_</div>
+      </div>
+      <div class="field">
+        <label>Model</label>
+        <select id="in-model">
+          <option value="llama-3.1-8b-instant">Llama 3.1 8B — 20k TPM (recommended)</option>
+          <option value="gemma2-9b-it">Gemma 2 9B — 15k TPM</option>
+          <option value="llama-3.3-70b-versatile">Llama 3.3 70B — 12k TPM</option>
+          <option value="mixtral-8x7b-32768">Mixtral 8x7B — 5k TPM</option>
+        </select>
+        <div class="hint"><span id="lbl-models" onclick="loadGroqModels()" style="color:var(--blue);cursor:pointer;text-decoration:underline">Load live model list</span></div>
+      </div>
+      <div class="flex" style="gap:8px;margin-bottom:14px">
+        <button class="btn btn-ghost btn-sm" style="flex:1" id="btn-test" onclick="testConnection()">Test Connection</button>
+        <span id="test-result" style="font-size:12px"></span>
+      </div>
+      <button class="btn btn-blue" style="width:100%;padding:12px;font-size:15px" id="btn-run" onclick="startAnalysis()" disabled="">
+        Start Analysis
+      </button>
+    </div>
+
+  </div>
+  </div>
+
+  </div>
+
+  <!-- CM360 Standalone Explorer -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">3 — CM360 Floodlight Explorer (optional, standalone)</div>
+    <div class="hint" style="margin-bottom:12px">Check any CM360 account's Floodlight activities independently — doesn't require GTM/GA4 setup above.</div>
+    <div class="g2" style="margin-bottom:12px">
+      <div class="field">
+        <label>CM360 Profile</label>
+        <select id="sel-cm360-profile" onchange="onCm360ProfileSelect()">
+          <option value="">— click Load —</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Advertiser</label>
+        <select id="sel-cm360-advertiser" disabled onchange="onCm360AdvertiserSelect()">
+          <option value="">—</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex" style="gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="loadCm360Profiles()">Load Profiles</button>
+      <button class="btn btn-blue btn-sm" id="btn-load-floodlight" onclick="loadCm360Floodlight()" disabled>Load Floodlight Activities</button>
+    </div>
+    <div id="cm360-standalone-result" style="margin-top:14px"></div>
+  </div>
+</div>
+</div>
+
+<!-- PROGRESS -->
+<div id="prog" style="display:none;margin-bottom:16px" class="card">
+  <div class="flex" style="margin-bottom:6px">
+    <div id="prog-label" style="font-size:14px;font-weight:700"><span class="loader"></span>Starting...</div>
+    <div id="prog-pct" class="mla" style="font-size:12px;color:var(--mu)">0%</div>
+  </div>
+  <div class="pbar-o"><div class="pbar-i" id="pbar" style="width:0"></div></div>
+  <div class="plog" id="plog"></div>
+</div>
+
+<!-- RESULTS -->
+<div id="results" style="display:none">
+<div class="rl">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+
+    <div class="card" id="c-score" style="display:none;text-align:center">
+      <div class="card-title">AI Score</div>
+      <div style="margin:4px 0 10px">
+        <div class="score-ring">
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle class="r-bg" cx="45" cy="45" r="36"></circle>
+            <circle class="r-fill" cx="45" cy="45" r="36" id="ring"></circle>
+          </svg>
+          <div class="score-n" id="score-n">—</div>
+        </div>
+      </div>
+      <div id="score-g" style="font-size:26px;font-weight:800;line-height:1"></div>
+      <div id="score-s" style="font-size:12px;color:var(--mu);margin-top:8px;line-height:1.6"></div>
+    </div>
+
+    <div class="card" id="c-gtm" style="display:none">
+      <div class="card-title">GTM Container</div>
+      <div class="srow"><span>All Tags</span>         <span class="sval" id="s-tags">—</span></div>
+      <div class="srow"><span>Triggers</span>         <span class="sval" id="s-trg">—</span></div>
+      <div class="srow"><span>Variables</span>        <span class="sval" id="s-var">—</span></div>
+      <div class="srow"><span>GA4 Config Tags</span>  <span class="sval" id="s-gc">—</span></div>
+      <div class="srow"><span>GA4 Event Tags</span>   <span class="sval" id="s-ge">—</span></div>
+      <div class="srow"><span>Measurement IDs</span>  <span class="sval" id="s-mids" style="color:var(--blue)">—</span></div>
+    </div>
+
+    <div class="card" id="c-consent-mini" style="display:none">
+      <div class="card-title">Consent Mode</div>
+      <div id="consent-mini-body" style="font-size:13px;line-height:2"></div>
+    </div>
+
+    <div class="card" id="c-ga4" style="display:none">
+      <div class="card-title">GA4 Property Found</div>
+      <div id="ga4-body" style="font-size:13px;line-height:2.1"></div>
+    </div>
+
+    <div class="alert alert-y" id="c-no-ga4" style="display:none">
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px">GA4 property not found</div>
+      <div id="no-ga4-txt" style="font-size:12px;line-height:1.6"></div>
+    </div>
+
+    <div class="card" id="c-mid" style="display:none">
+      <div class="card-title">Measurement ID Check</div>
+      <div id="mid-body" style="font-size:13px;line-height:2"></div>
+    </div>
+
+    <div class="card" id="c-rt" style="display:none">
+      <div class="flex" style="margin-bottom:12px">
+        <div class="card-title" style="margin:0"><span class="rt-pulse" style="margin-right:6px"></span>Realtime</div>
+        <button class="btn btn-green btn-sm mla" onclick="refreshRealtime()">Refresh</button>
+      </div>
+      <div id="rt-body"><div class="empty" style="padding:14px;font-size:12px">Open your site, trigger events, then Refresh.</div></div>
+    </div>
+
+  </div>
+
+  <!-- Main -->
+  <div>
+    <div class="tabs">
+      <button class="tab active" data-tab="events" onclick="switchTab('events')">Events<span class="n" id="n-ev">0</span></button>
+      <button class="tab" data-tab="issues" onclick="switchTab('issues')">Issues<span class="n" id="n-is">0</span></button>
+      <button class="tab" data-tab="consent" onclick="switchTab('consent')">Consent<span class="n" id="n-cm">—</span></button>
+      <button class="tab" data-tab="ga4" onclick="switchTab('ga4')">GA4 30d<span class="n" id="n-g4">0</span></button>
+      <button class="tab" data-tab="tags" onclick="switchTab('tags')">Tags<span class="n" id="n-tg">0</span></button>
+      <button class="tab" data-tab="triggers" onclick="switchTab('triggers')">Triggers<span class="n" id="n-tr">0</span></button>
+      <button class="tab" data-tab="variables" onclick="switchTab('variables')">Variables<span class="n" id="n-vr">0</span></button>
+      <button class="tab" data-tab="recs" onclick="switchTab('recs')">Recs</button>
+      <button class="tab" data-tab="floodlight" onclick="switchTab('floodlight')">Floodlight<span class="n" id="n-fl">0</span></button>
+      <button class="tab" data-tab="googleads" onclick="switchTab('googleads')">Google Ads<span class="n" id="n-ga">0</span></button>
+      
+<button class="tab" data-tab="cm360" onclick="switchTab('cm360')">CM360</button>
+    </div>
+    <div id="tab-body"></div>
+  </div>
+
+</div>
+</div>
+
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div id="modal-badge"></div>
+      <h3 id="modal-title">Tag Details</h3>
+      <button class="modal-x" id="modal-close-btn">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+var appData      = null;
+var curTab       = 'events';
+var rtProp       = null;
+var pollTimer    = null;
+var lastStepSeen = 0;
+var tagStore     = {};
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', function() {
+  loadAccounts();
+
+  byId('modal-close-btn').addEventListener('click', closeModal);
+  byId('modal-overlay').addEventListener('click', function(e) {
+    if (e.target === byId('modal-overlay')) closeModal();
+  });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+  // Event delegation for tag modal clicks
+  document.addEventListener('click', function(e) {
+    var el = e.target;
+    while (el && el.tagName && el.tagName !== 'BODY') {
+      var k = el.getAttribute('data-tagkey');
+      if (k) { openModal(k); return; }
+      el = el.parentElement;
+    }
+  });
+});
+
+/* ============================================================
+   SAFE CONVERTERS
+   ============================================================ */
+function toStr(v) {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'string')  return v;
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+  if (typeof v === 'object') {
+    if (v.name)        return v.name;
+    if (v.param)       return v.param;
+    if (v.key)         return v.key;
+    if (v.value)       return v.value;
+    if (v.issue)       return v.issue;
+    if (v.description) return v.description;
+    if (v.detail)      return v.detail;
+    if (v.message)     return v.message;
+    if (v.text)        return v.text;
+    if (v.title)       return v.title;
+    return JSON.stringify(v);
+  }
+  return String(v);
+}
+
+function toArr(v) {
+  if (!v) return [];
+  return Array.isArray(v) ? v : [v];
+}
+
+/* ============================================================
+   GTM SELECTS
+   ============================================================ */
+function loadAccounts() {
+  var s = byId('sel-acc');
+  s.innerHTML = '<option value="">Loading...</option>';
+  s.disabled  = true;
+  google.script.run
+.withSuccessHandler(function(r) {
+  if (!r.ok) { toast(r.error, 'err'); s.innerHTML = '<option value="">Error</option>'; return; }
+  var html = '<option value="">— select account —</option>';
+  r.data.sort(function(a, b) { return a.name.localeCompare(b.name); });
+  r.data.forEach(function(a) { html += mkOpt(a.id, a.name); });
+      s.innerHTML = html; s.disabled = false;
+    })
+    .withFailureHandler(function(e) { toast(e.message, 'err'); })
+    .getAccounts();
+}
+
+function loadContainers() {
+  var aId = byId('sel-acc').value;
+  if (!aId) return;
+  resetSel('sel-con'); resetSel('sel-ws');
+  byId('btn-run').disabled = true;
+  google.script.run
+.withSuccessHandler(function(r) {
+  if (!r.ok) { toast(r.error, 'err'); return; }
+  var html = '<option value="">— select container —</option>';
+  r.data.sort(function(a, b) { return a.name.localeCompare(b.name); });
+  r.data.forEach(function(c) { html += mkOpt(c.id, c.name + ' (' + c.publicId + ')'); });
+      var s = byId('sel-con'); s.innerHTML = html; s.disabled = false;
+    })
+    .withFailureHandler(function(e) { toast(e.message, 'err'); })
+    .getContainers(aId);
+}
+
+function loadWorkspaces() {
+  var aId = byId('sel-acc').value, cId = byId('sel-con').value;
+  if (!aId || !cId) return;
+  resetSel('sel-ws'); byId('btn-run').disabled = true;
+  google.script.run
+    .withSuccessHandler(function(r) {
+      if (!r.ok) { toast(r.error, 'err'); return; }
+      var html = '<option value="">— select workspace —</option>';
+      r.data.forEach(function(w) { html += mkOpt(w.id, w.name + (w.description ? ' — ' + w.description : '')); });
+      var s = byId('sel-ws'); s.innerHTML = html; s.disabled = false;
+      if (r.data.length) s.value = r.data[0].id;
+      byId('btn-run').disabled = false;
+    })
+    .withFailureHandler(function(e) { toast(e.message, 'err'); })
+    .getWorkspaces(aId, cId);
+}
+
+/* ============================================================
+   GA4 PROPERTY PICKER
+   ============================================================ */
+function loadGA4Properties() {
+  var btn = byId('btn-load-props'), hint = byId('ga4prop-hint');
+  btn.textContent = 'Loading...'; btn.disabled = true;
+  hint.textContent = 'Searching all accounts — may take 30-60 seconds...';
+  hint.style.color = 'var(--yellow)';
+  google.script.run
+    .withSuccessHandler(function(r) {
+      btn.textContent = 'Reload'; btn.disabled = false;
+      if (!r.ok || !r.data || !r.data.length) {
+        hint.textContent = 'No properties found.'; hint.style.color = 'var(--red)'; return;
+      }
+      var sel = byId('sel-ga4prop'), grouped = {};
+      r.data.forEach(function(p) { if (!grouped[p.accountName]) grouped[p.accountName] = []; grouped[p.accountName].push(p); });
+      sel.innerHTML = '<option value="">— select GA4 property —</option>';
+      Object.keys(grouped).sort(function(a, b) { return a.localeCompare(b); }).forEach(function(acc) {
+        var grp = document.createElement('optgroup'); grp.label = acc;
+        grouped[acc].sort(function(a, b) { return a.propertyName.localeCompare(b.propertyName); });
+        grouped[acc].forEach(function(p) {
+          var o = document.createElement('option');
+          o.value = p.propertyId;
+          o.textContent = p.propertyName;
+          grp.appendChild(o);
+        });
+        sel.appendChild(grp);
+      });
+      hint.textContent = 'Loaded ' + r.data.length + ' properties'; hint.style.color = 'var(--green)';
+      window._ga4Props = r.data; toast('Properties loaded!', 'ok');
+    })
+    .withFailureHandler(function(e) { btn.textContent = 'Load'; btn.disabled = false; toast(e.message, 'err'); })
+    .listAllGA4Properties();
+}
+
+function onGA4PropSelect() {
+  var val = byId('sel-ga4prop').value;
+  if (!val) return;
+  byId('in-ga4id').value = val;
+  toast('Property selected: ' + val, 'ok');
+}
+
+/* ============================================================
+   GROQ
+   ============================================================ */
+function loadGroqModels() {
+  var key = byId('in-key').value.trim();
+  if (!key) { toast('Paste your Groq API key first', 'err'); return; }
+  var lbl = byId('lbl-models'); lbl.textContent = 'Loading...';
+  google.script.run
+    .withSuccessHandler(function(r) {
+      lbl.textContent = 'Load live model list';
+      if (!r.ok || !r.data || !r.data.length) { toast(r.error || 'No models', 'err'); return; }
+      var sel = byId('in-model'), cur = sel.value, html = '';
+      r.data.forEach(function(m) { html += '<option value="' + safeAttr(m.id) + '"' + (m.id === cur ? ' selected' : '') + '>' + esc(m.name) + '</option>'; });
+      sel.innerHTML = html; lbl.textContent = 'Loaded ' + r.data.length + ' models'; toast('Models loaded', 'ok');
+    })
+    .withFailureHandler(function(e) { byId('lbl-models').textContent = 'Load live model list'; toast(e.message, 'err'); })
+    .getGroqModels();
+}
+
+function testConnection() {
+  var key = byId('in-key').value.trim(), model = byId('in-model').value;
+  if (!key) { toast('Paste your Groq API key first', 'err'); return; }
+  var btn = byId('btn-test'); btn.textContent = 'Testing...'; btn.disabled = true;
+  setTxt('test-result', 'connecting...'); byId('test-result').style.color = 'var(--mu)';
+  google.script.run
+    .withSuccessHandler(function(r) {
+      btn.textContent = 'Test Connection'; btn.disabled = false;
+      if (r.ok) { byId('test-result').style.color = 'var(--green)'; setTxt('test-result', 'Connected!'); byId('btn-run').disabled = false; toast('Groq connected!', 'ok'); }
+      else { byId('test-result').style.color = 'var(--red)'; setTxt('test-result', 'Failed'); toast(r.error, 'err'); }
+    })
+    .withFailureHandler(function(e) { btn.textContent = 'Test Connection'; btn.disabled = false; byId('test-result').style.color = 'var(--red)'; setTxt('test-result', 'Error'); toast(e.message, 'err'); })
+    .testGroqConnection(key, model);
+}
+
+/* ============================================================
+   ANALYSIS + PROGRESS POLLING
+   ============================================================ */
+function startAnalysis() {
+  var aId = byId('sel-acc').value, cId = byId('sel-con').value, wId = byId('sel-ws').value;
+  var key = byId('in-key').value.trim(), model = byId('in-model').value;
+  var ga4id = byId('in-ga4id').value.trim();
+  if (!aId || !cId || !wId) { toast('Select account, container and workspace', 'err'); return; }
+
+  var sid = 'run_' + Date.now();
+  show('prog'); hide('results');
+  byId('plog').innerHTML = '';
+  byId('pbar').style.width = '5%'; byId('prog-pct').textContent = '5%';
+  byId('prog-label').innerHTML = '<span class="loader"></span>Connecting...';
+  byId('btn-run').disabled = true; show('btn-reset');
+  lastStepSeen = 0;
+  startProgressPolling(sid);
+
+  google.script.run
+    .withSuccessHandler(function(r) {
+      stopProgressPolling();
+      byId('btn-run').disabled = false;
+      if (!r.ok) { plog(r.error, 'err'); toast(r.error, 'err'); return; }
+      if (r.aiError) { plog('AI unavailable: ' + r.aiError + ' — showing GTM + GA4 data', 'warn'); toast('AI skipped — GTM + GA4 data loaded', 'ok'); }
+      onComplete(r);
+    })
+    .withFailureHandler(function(e) {
+      stopProgressPolling(); byId('btn-run').disabled = false;
+      plog('Error: ' + e.message, 'err'); toast(e.message, 'err');
+    })
+    .runAnalysis({ accountId: aId, containerId: cId, workspaceId: wId, apiKey: key, model: model, ga4PropertyId: ga4id, sessionId: sid });
+}
+
+function startProgressPolling(sid) {
+  stopProgressPolling(); lastStepSeen = 0;
+  pollTimer = setInterval(function() { pollProgress(sid); }, 2000);
+}
+
+function stopProgressPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+function pollProgress(sid) {
+  google.script.run
+    .withSuccessHandler(function(data) {
+      if (!data) return;
+      var steps = data.steps || [];
+      for (var i = lastStepSeen; i < steps.length; i++) {
+        var s = steps[i];
+        var cls = s.m.indexOf('WARNING') > -1 ? 'warn' : s.m.indexOf('error') > -1 ? 'err' : s.m.indexOf('complete') > -1 ? 'ok' : '';
+        plog('[' + s.t + '] ' + s.m, cls);
+        var pct = Math.min(10 + (s.s * 7), 95);
+        byId('pbar').style.width = pct + '%'; byId('prog-pct').textContent = pct + '%';
+        byId('prog-label').innerHTML = (pct < 95 ? '<span class="loader"></span>' : '') + esc(s.m);
+      }
+      lastStepSeen = steps.length;
+      if (data.done && data.error) { stopProgressPolling(); plog('Error: ' + data.error, 'err'); toast(data.error, 'err'); byId('btn-run').disabled = false; }
+    })
+    .withFailureHandler(function() {})
+    .getProgress(sid);
+}
+
+/* ============================================================
+   ON COMPLETE
+   ============================================================ */
+function onComplete(r) {
+  setProgress(100, 'Analysis complete!');
+  appData = r; tagStore = {};
+  (r.gtm.tags || []).forEach(function(tag, i) { tagStore['t' + i] = tag; });
+
+  // GTM stats
+  show('c-gtm');
+  setTxt('s-tags', r.gtm.tags.length); setTxt('s-trg', r.gtm.triggers.length); setTxt('s-var', r.gtm.variables.length);
+  setTxt('s-gc', r.gtm.configTags.length); setTxt('s-ge', r.gtm.eventTags.length);
+  setTxt('s-mids', (r.gtm.measurementIds || []).join(', ') || '—');
+
+  // Consent mini sidebar
+  if (r.consent) {
+    show('c-consent-mini');
+    var c = r.consent;
+    var cScore = c.score || 0;
+    var cColor = cScore >= 80 ? 'var(--green)' : cScore >= 50 ? 'var(--yellow)' : 'var(--red)';
+    var mb = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
+    mb += '<div style="font-size:24px;font-weight:800;color:' + cColor + '">' + cScore + '</div>';
+    mb += '<div style="font-size:12px;color:var(--mu)">/ 100</div></div>';
+    mb += srow('Init Tag',    c.hasConsentInitTag ? '<span style="color:var(--green)">Yes</span>' : '<span style="color:var(--red)">Missing</span>');
+    mb += srow('v2 (DMA)',    c.consentModeV2     ? '<span style="color:var(--green)">Yes</span>' : '<span style="color:var(--yellow)">Not found</span>');
+    mb += srow('Issues', '<span style="color:' + (c.issues.length > 0 ? 'var(--red)' : 'var(--green)') + '">' + c.issues.length + '</span>');
+    byId('consent-mini-body').innerHTML = mb;
+
+    // Consent tab badge
+    var cmCrit = (c.issues || []).filter(function(i) { return i.severity === 'critical'; }).length;
+    var cmBadge = byId('n-cm');
+    cmBadge.textContent = cmCrit > 0 ? cmCrit + '!' : (c.issues || []).length;
+    if (cmCrit > 0) cmBadge.style.background = 'var(--red)';
+  }
+
+  // GA4 property
+  if (r.ga4Property) {
+    show('c-ga4'); rtProp = r.ga4Property.property.name;
+    byId('ga4-body').innerHTML =
+      srow('Property', '<b style="color:var(--blue)">' + esc(r.ga4Property.property.displayName || '') + '</b>') +
+      srow('Measurement ID', '<span style="color:var(--green);font-family:monospace">' + esc(r.ga4Property.measurementId) + '</span>') +
+      srow('Stream', esc((r.ga4Property.stream && r.ga4Property.stream.displayName) || '—')) +
+      srow('Account', esc((r.ga4Property.account && r.ga4Property.account.displayName) || '—'));
+    show('c-rt');
+    if (r.ga4Realtime && r.ga4Realtime.length) renderRealtime(r.ga4Realtime);
+  } else {
+    show('c-no-ga4');
+    byId('no-ga4-txt').textContent = r.gtm.measurementIds.length
+      ? 'Searched for: ' + r.gtm.measurementIds.join(', ') + '. Enter Property ID manually.'
+      : 'No GA4 Measurement IDs (G-...) found in GTM tags.';
+  }
+
+  // Measurement ID check
+  if (r.aiResult && r.aiResult.measurementIds) {
+    var mid = r.aiResult.measurementIds; show('c-mid');
+    byId('mid-body').innerHTML =
+      srow('Consistent', mid.consistent ? '<span style="color:var(--green)">Yes</span>' : '<span style="color:var(--red)">No</span>') +
+      srow('GTM IDs', (toArr(mid.gtmIds)).map(function(id) { return mkChip(toStr(id), 'b'); }).join('') || '—') +
+      srow('GA4 ID', mid.ga4Id ? '<span style="color:var(--green);font-family:monospace">' + esc(toStr(mid.ga4Id)) + '</span>' : '—') +
+      (toArr(mid.issues).length ? '<div style="margin-top:6px;font-size:11px;color:var(--red);line-height:1.6">' + toArr(mid.issues).map(function(i){ return esc(toStr(i)); }).join('<br>') + '</div>' : '');
+  }
+
+  // AI score ring
+  if (r.aiResult) {
+    show('c-score');
+    var sc = r.aiResult.score || 0;
+    var ring = byId('ring');
+    ring.style.strokeDashoffset = 226 - (226 * sc / 100);
+    ring.style.stroke = sc >= 80 ? 'var(--green)' : sc >= 50 ? 'var(--yellow)' : 'var(--red)';
+    setTxt('score-n', sc); setTxt('score-g', toStr(r.aiResult.grade)); setTxt('score-s', toStr(r.aiResult.summary));
+  }
+
+  // Tab counts
+  var ai = r.aiResult || {};
+  setTxt('n-ev', toArr(ai.events).length);
+  setTxt('n-is', toArr(ai.issues).length);
+  setTxt('n-g4', (r.ga4Events || []).length);
+  setTxt('n-tg', (r.gtm.tags || []).length);
+  setTxt('n-tr', (r.gtm.triggers || []).length);
+  setTxt('n-vr', (r.gtm.variables || []).length);
+  setTxt('n-fl', (r.gtm.floodlightTags || []).length);
+  setTxt('n-ga', (r.gtm.googleAdsTags || []).length);
+
+ show('results'); show('btn-export'); show('btn-export-sheet');
+  toast('Analysis complete!', 'ok');
+  switchTab('events');
+}
+
+/* ============================================================
+   REALTIME
+   ============================================================ */
+function refreshRealtime() {
+  if (!rtProp) { toast('No GA4 property connected', 'err'); return; }
+  byId('rt-body').innerHTML = '<div class="empty" style="padding:12px;font-size:12px"><span class="loader"></span>Fetching...</div>';
+  google.script.run
+    .withSuccessHandler(function(r) {
+      if (!r.ok) { byId('rt-body').innerHTML = '<div class="empty" style="color:var(--red)">' + esc(r.error) + '</div>'; return; }
+      renderRealtime(r.data);
+    })
+    .withFailureHandler(function(e) { byId('rt-body').innerHTML = '<div class="empty" style="color:var(--red)">' + esc(e.message) + '</div>'; })
+    .pollRealtime(rtProp);
+}
+
+function renderRealtime(rows) {
+  if (!rows || !rows.length) { byId('rt-body').innerHTML = '<div class="empty" style="padding:12px;font-size:12px">No active users. Visit your site and trigger events.</div>'; return; }
+  var html = '';
+  rows.forEach(function(r) {
+    html += '<div class="srow"><span style="font-family:monospace;font-size:12px;font-weight:700">' + esc(r.eventName) + '</span>';
+    html += '<span style="font-size:11px;color:var(--mu);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100px;display:inline-block">' + esc(r.page || '') + '</span>';
+    html += '<span class="chip cg">' + r.count + '</span></div>';
+  });
+  byId('rt-body').innerHTML = html;
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+function switchTab(tab) {
+  curTab = tab;
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.toggle('active', t.dataset.tab === tab); });
+  renderTab(tab);
+}
+
+function renderTab(tab) {
+  if (tab === 'cm360') { byId('tab-body').innerHTML = '<div class="empty">Use the <b>CM360 Floodlight Explorer</b> card in Setup (top of page) to check any account independently.</div>'; return; }
+  if (!appData) { byId('tab-body').innerHTML = ''; return; }
+  var ai = appData.aiResult || {}, gtm = appData.gtm || {}, body = '';
+  if (tab === 'events')     body = tabEvents(ai, gtm.tags || []);
+  if (tab === 'issues')     body = tabIssues(ai);
+  if (tab === 'consent')    body = tabConsent(appData.consent);
+  if (tab === 'ga4')        body = tabGA4(appData.ga4Events || [], appData.ga4DataError);
+  if (tab === 'tags')       body = tabTags(gtm.tags || [], gtm.eventTags || []);
+  if (tab === 'triggers')   body = tabTriggers(gtm.triggers || []);
+  if (tab === 'variables')  body = tabVariables(gtm.variables || []);
+  if (tab === 'recs')       body = tabRecs(ai);
+  if (tab === 'floodlight') body = tabFloodlight(gtm);
+  if (tab === 'googleads')  body = tabGoogleAds(gtm, appData.googleAdsIssues || []);
+  byId('tab-body').innerHTML = body;
+}
+
+/* ============================================================
+   TAB: EVENTS
+   ============================================================ */
+function tabEvents(ai, allTags) {
+  if (!ai.events || !ai.events.length) return '<div class="empty">No event data.<br>Add your Groq API key to enable AI analysis.</div>';
+  var nameToKey = {};
+  allTags.forEach(function(tag, i) { nameToKey[tag.name] = 't' + i; });
+  var info = '<div class="alert alert-b" style="font-size:12px;margin-bottom:14px"><b>Not in GA4 30d</b>: GA4 Config tags (gaawc/googtag) configure GA4 but do NOT fire as named events. Only GA4 Event tags (gaawe) fire events. If GA4 30d shows 0, enable <b>Google Analytics Data API</b> in Cloud Console.</div>';
+  var cards = '';
+  toArr(ai.events).forEach(function(ev) {
+    var evName = toStr(ev.name), status = toStr(ev.status) || 'ok';
+    var bs = status === 'ok' ? 'b-ok' : status === 'warning' ? 'b-warn' : 'b-err';
+    var lbl = status === 'ok' ? 'OK' : status === 'warning' ? 'Warning' : 'Error';
+    var key = nameToKey[evName] || '';
+    var chips = '';
+    chips += ev.inGTM           ? mkChip('GTM', 'g')                              : mkChip('No GTM tag', 'r');
+    chips += ev.inGA4Last30Days ? mkChip('GA4 (' + (ev.ga4Count || 0) + 'x)', 'g') : mkChip('Not in GA4 30d', 'r');
+    if (ev.inGA4Realtime)      chips += mkChip('Live now', 'g');
+    if (ev.namingOk === false) chips += mkChip('Naming issue', 'y');
+    var extras = '';
+    if (ev.namingOk === false && ev.namingIssue) extras += '<div style="display:flex;gap:6px;margin-top:5px"><span style="color:var(--red);flex-shrink:0">&#128308;</span><span style="font-size:11px;color:var(--red);line-height:1.5">' + esc(toStr(ev.namingIssue)) + '</span></div>';
+    toArr(ev.problems).forEach(function(p) {
+      var txt = toStr(p); if (!txt) return;
+      extras += '<div style="display:flex;gap:6px;margin-top:5px"><span style="color:var(--yellow);flex-shrink:0">&#9888;</span><span style="font-size:11px;color:var(--yellow);line-height:1.5">' + esc(txt) + '</span></div>';
+    });
+    var pn = ev.params || {}, configured = toArr(pn.configured), missing = toArr(pn.missingRequired), notes = toStr(pn.notes || '');
+    if (configured.length || missing.length) {
+      extras += '<div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">';
+      if (configured.length) { extras += '<div><div style="color:var(--mu);margin-bottom:4px">Configured</div>'; configured.forEach(function(p) { var l = toStr(p); if (l) extras += mkChip(l); }); extras += '</div>'; }
+      if (missing.length) { extras += '<div><div style="color:var(--red);margin-bottom:4px">Missing required</div>'; missing.forEach(function(p) { var l = toStr(p); if (l) extras += mkChip(l, 'r'); }); extras += '</div>'; }
+      extras += '</div>';
+    }
+    if (notes) extras += '<div style="font-size:11px;color:var(--mu);margin-top:6px">' + esc(notes) + '</div>';
+    var dataAttr = key ? ' data-tagkey="' + safeAttr(key) + '"' : '';
+    var clickHint = key ? '<div style="font-size:10px;color:var(--mu);margin-top:6px">Click to view tag settings</div>' : '';
+    cards += '<div class="ev-card"' + dataAttr + '><div class="ev-head"><div class="ev-name">' + esc(evName) + '</div><span class="badge ' + bs + '">' + lbl + '</span></div><div>' + chips + '</div>' + extras + clickHint + '</div>';
+  });
+  return info + cards;
+}
+
+/* ============================================================
+   TAB: ISSUES
+   ============================================================ */
+function tabIssues(ai) {
+  if (!ai.issues || !ai.issues.length) return '<div class="empty">No issues found!' + (ai.score ? '<br><span style="color:var(--green)">Score: ' + ai.score + '/100</span>' : '') + '</div>';
+  var order = { critical: 0, warning: 1, info: 2 };
+  var sorted = toArr(ai.issues).slice().sort(function(a, b) { return (order[toStr(a.severity)] || 9) - (order[toStr(b.severity)] || 9); });
+  var counts = { critical: 0, warning: 0, info: 0 };
+  sorted.forEach(function(is) { var s = toStr(is.severity); counts[s] = (counts[s] || 0) + 1; });
+  var summary = '<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">';
+  if (counts.critical) summary += mkChip(counts.critical + ' Critical', 'r');
+  if (counts.warning)  summary += mkChip(counts.warning  + ' Warning',  'y');
+  if (counts.info)     summary += mkChip(counts.info     + ' Info',      'b');
+  summary += '</div>';
+  var cards = sorted.map(function(is) {
+    var sev = toStr(is.severity) || 'info';
+    var cls = sev === 'critical' ? 'ic-c' : sev === 'warning' ? 'ic-w' : 'ic-i';
+    var sevColor = sev === 'critical' ? 'var(--red)' : sev === 'warning' ? 'var(--yellow)' : 'var(--blue)';
+    var icon = sev === 'critical' ? '&#128308;' : sev === 'warning' ? '&#128993;' : '&#128309;';
+    var cat = toStr(is.category), tag = toStr(is.tag), title = toStr(is.title);
+    var detail = toStr(is.detail), fix = toStr(is.fix), snippet = toStr(is.snippet);
+    var html = '<div class="iss ' + cls + '">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px">';
+    html += '<div class="iss-title">' + icon + ' ' + esc(title) + '</div>';
+    html += '<span class="badge" style="background:transparent;border:1px solid ' + sevColor + ';color:' + sevColor + ';flex-shrink:0">' + sev.toUpperCase() + '</span>';
+    html += '</div>';
+    html += '<div style="margin-bottom:10px">' + mkChip(cat, sev === 'critical' ? 'r' : sev === 'warning' ? 'y' : 'b');
+    if (tag) html += ' ' + mkChip(tag, 'p');
+    html += '</div>';
+    if (detail) html += '<div class="iss-detail">' + esc(detail) + '</div>';
+    if (fix) html += '<div class="iss-fix"><span style="color:var(--green);font-weight:700;flex-shrink:0">&#128161; Fix:</span><span>' + esc(fix) + '</span></div>';
+    if (snippet && snippet !== 'null' && snippet.length > 2) html += '<pre class="code" style="margin-top:8px">' + esc(snippet) + '</pre>';
+    html += '</div>';
+    return html;
+  }).join('');
+  return summary + cards;
+}
+
+/* ============================================================
+   TAB: CONSENT
+   ============================================================ */
+function tabConsent(c) {
+  if (!c) return '<div class="empty">No consent data available.</div>';
+  var scoreColor = c.score >= 80 ? 'var(--green)' : c.score >= 50 ? 'var(--yellow)' : 'var(--red)';
+  var html = '<div style="display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:16px">';
+  html += '<div style="text-align:center;min-width:80px"><div style="font-size:40px;font-weight:800;color:' + scoreColor + '">' + c.score + '</div><div style="font-size:11px;color:var(--mu)">Consent Score</div></div>';
+  html += '<div><div style="font-size:15px;font-weight:700;margin-bottom:10px">Google Consent Mode Audit</div><div style="display:flex;gap:8px;flex-wrap:wrap">';
+  html += consentCheck(c.hasConsentInitTag,           'Consent Init Tag');
+  html += consentCheck(c.consentModeV2,               'Consent Mode v2');
+  html += consentCheck(c.gaTagsNoConsent.length === 0, 'GA4 Tags Protected');
+  html += consentCheck(c.tags.noConsentSet.length === 0,'All Tags Set');
+  html += '</div></div></div>';
+
+  // Issues
+  if (c.issues && c.issues.length) {
+    c.issues.forEach(function(issue) {
+      var cls = issue.severity === 'critical' ? 'ic-c' : issue.severity === 'warning' ? 'ic-w' : 'ic-i';
+      var icon = issue.severity === 'critical' ? '&#128308;' : '&#128993;';
+      html += '<div class="iss ' + cls + '"><div class="iss-title">' + icon + ' ' + esc(issue.title) + '</div>';
+      html += '<div class="iss-detail">' + esc(issue.detail) + '</div>';
+      html += '<div class="iss-fix"><span style="color:var(--green);font-weight:700;flex-shrink:0">&#128161; Fix:</span><span>' + esc(issue.fix) + '</span></div></div>';
+    });
+  }
+
+  // Init + v2 cards
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">';
+  html += '<div class="card"><div class="card-title">Consent Initialization</div>';
+  if (c.hasConsentInitTag) html += '<div style="color:var(--green);font-size:13px">&#9989; ' + esc(c.consentInitTagNames.join(', ')) + '</div>';
+  else html += '<div style="color:var(--red);font-size:13px">&#10060; No consent initialization tag found</div>';
+  html += '<div style="margin-top:8px;font-size:12px;color:var(--mu)">Must set consent defaults BEFORE any tracking tags fire using a Consent Initialization trigger.</div></div>';
+  html += '<div class="card"><div class="card-title">Consent Mode v2 (DMA)</div>';
+  if (c.consentModeV2) html += '<div style="color:var(--green);font-size:13px">&#9989; v2 signals: ' + esc(c.v2TypesFound.join(', ')) + '</div>';
+  else html += '<div style="color:var(--red);font-size:13px">&#10060; ad_user_data + ad_personalization not found</div>';
+  html += '<div style="margin-top:8px;font-size:12px;color:var(--mu)">Required for EU/DMA compliance. Must include ad_user_data and ad_personalization.</div></div>';
+  html += '</div>';
+
+  // Tag table
+  html += '<div class="card-title" style="margin-bottom:12px">Tag Consent Status (' + c.totalTags + ' tags)</div>';
+  var allRows = []
+    .concat(c.tags.consentNeeded.map(function(t) { return { t: t, g: 'needed' }; }))
+    .concat(c.tags.withWorkaround.map(function(t) { return { t: t, g: 'workaround' }; }))
+    .concat(c.tags.noConsentSet.map(function(t) { return { t: t, g: 'missing' }; }))
+    .concat(c.tags.consentNotNeeded.map(function(t) { return { t: t, g: 'notNeeded' }; }))
+    .sort(function(a, b) {
+      var ga4 = ['gaawc','googtag','gaawe'];
+      return (ga4.indexOf(a.t.type) > -1 ? 0 : 1) - (ga4.indexOf(b.t.type) > -1 ? 0 : 1);
+    });
+
+  html += '<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Tag Name</th><th>Type</th><th>Consent Status</th><th>Consent Types</th><th>Notes</th></tr></thead><tbody>';
+  allRows.forEach(function(row) {
+    var t = row.t, g = row.g;
+    var isGA4 = ['gaawc','googtag','gaawe'].indexOf(t.type) > -1;
+    var statusBadge = '', notes = '';
+    if      (g === 'needed')     { statusBadge = '<span class="badge b-ok">&#9989; Required</span>'; }
+    else if (g === 'workaround') { statusBadge = '<span class="badge b-warn">&#9888; Trigger check</span>'; notes = 'Trigger: ' + esc(t.workaroundTrigger || ''); }
+    else if (g === 'missing')    { statusBadge = isGA4 ? '<span class="badge b-err">&#10060; Missing</span>' : '<span class="badge b-warn">&#9888; Not set</span>'; notes = isGA4 ? 'Should require analytics_storage' : 'Review if consent needed'; }
+    else                         { statusBadge = '<span style="color:var(--mu);font-size:12px">Not needed</span>'; }
+    var types = (t.consentTypes || []).length
+      ? t.consentTypes.map(function(ct) { return mkChip(ct, ct === 'analytics_storage' ? 'g' : ct === 'ad_storage' ? 'y' : ct === 'ad_user_data' || ct === 'ad_personalization' ? 'b' : ''); }).join('')
+      : '<span style="color:var(--mu)">—</span>';
+    html += '<tr' + (t.paused ? ' style="opacity:.55"' : '') + '><td style="font-weight:700">' + esc(t.name) + (t.paused ? ' ' + mkChip('paused','y') : '') + '</td><td>' + mkChip(t.type, isGA4 ? 'b' : '') + '</td><td>' + statusBadge + '</td><td>' + types + '</td><td style="font-size:11px;color:var(--mu)">' + notes + '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+
+  html += '<div class="alert alert-b" style="margin-top:16px;font-size:12px"><b>Consent types:</b>&nbsp;' + mkChip('analytics_storage','g') + ' GA4&nbsp;' + mkChip('ad_storage','y') + ' Ads&nbsp;' + mkChip('ad_user_data','b') + ' User data (v2)&nbsp;' + mkChip('ad_personalization','p') + ' Personalisation (v2)<br><br>GA4 tags → require <b>analytics_storage</b>. Google Ads tags → require <b>ad_storage + ad_user_data + ad_personalization</b>.</div>';
+  return html;
+}
+
+function consentCheck(ok, label) {
+  var color = ok ? 'var(--green)' : 'var(--red)', icon = ok ? '&#9989;' : '&#10060;';
+  return '<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid ' + color + ';color:' + color + '">' + icon + ' ' + esc(label) + '</span>';
+}
+
+/* ============================================================
+   TAB: GA4 30d
+   ============================================================ */
+function tabGA4(events, dataError) {
+  if (dataError) {
+    var isPerm = dataError.indexOf('403') > -1 || dataError.indexOf('denied') > -1;
+    var html = '<div class="iss ic-w" style="margin-bottom:16px"><div class="iss-title">GA4 Data API Error</div><div class="iss-detail">' + esc(dataError) + '</div>';
+    if (isPerm) html += '<div class="iss-fix"><span style="color:var(--green);font-weight:700">&#128161; Fix:</span><span>Enable Google Analytics Data API at console.cloud.google.com/apis/library/analyticsdata.googleapis.com</span></div>';
+    html += '</div><div class="alert alert-b" style="font-size:12px">Required: Tag Manager API | Google Analytics Admin API | <b>Google Analytics Data API</b></div>';
+    return html;
+  }
+  if (!events.length) return '<div class="empty">No GA4 event data.<br><br><div style="text-align:left;display:inline-block;font-size:12px;color:var(--mu);line-height:1.9"><b style="color:var(--tx)">Possible reasons:</b><br>1. Google Analytics Data API not enabled<br>2. GA4 property is new (no 30-day data)<br>3. No matching GA4 property found</div></div>';
+  var max = 0; events.forEach(function(e) { if (e.eventCount > max) max = e.eventCount; });
+  var html = '<table class="tbl"><thead><tr><th>#</th><th>Event Name</th><th>Count (30d)</th><th>Users</th><th>Volume</th></tr></thead><tbody>';
+  events.forEach(function(e, i) {
+    var pct = max > 0 ? Math.round((e.eventCount / max) * 100) : 0;
+    html += '<tr><td style="color:var(--mu)">' + (i+1) + '</td><td style="font-family:monospace;font-weight:700">' + esc(e.eventName) + '</td><td>' + e.eventCount.toLocaleString() + '</td><td>' + e.users.toLocaleString() + '</td><td><div class="bar-wrap"><div class="bar-fill" style="width:' + pct + '%"></div></div></td></tr>';
+  });
+  return html + '</tbody></table>';
+}
+
+/* ============================================================
+   TAB: TAGS
+   ============================================================ */
+function tabTags(tags, evTags) {
+  if (!tags.length) return '<div class="empty">No tags found.</div>';
+  var evMap = {}; evTags.forEach(function(t) { evMap[t.name] = t.eventName; });
+  var html = '<div style="font-size:11px;color:var(--mu);margin-bottom:12px">Click any card to view full tag configuration</div>';
+  tags.forEach(function(tag, i) {
+    var isGA4 = ['gaawc','googtag','gaawe'].indexOf(tag.type) > -1;
+    var dotCls = tag.paused ? 'dot-y' : 'dot-g', evName = evMap[tag.name];
+    html += '<div class="ev-card" data-tagkey="' + safeAttr('t' + i) + '"><div class="ev-head"><div class="ev-name"><span class="dot ' + dotCls + '" style="margin-right:7px;display:inline-block"></span>' + esc(tag.name) + '</div>' + mkChip(tag.type || '—', isGA4 ? 'b' : '') + '</div>';
+    html += '<div style="font-size:12px;color:var(--mu)">' + (tag.paused ? '<span style="color:var(--yellow)">Paused</span>' : '<span style="color:var(--green)">Active</span>') + ' &middot; ' + (tag.firingTriggerId||[]).length + ' trigger(s) &middot; ' + (tag.parameter||[]).length + ' params' + (evName ? ' &middot; <span style="color:var(--blue);font-family:monospace">event: ' + esc(evName) + '</span>' : '') + '</div>';
+    html += '<div style="font-size:10px;color:var(--mu);margin-top:5px">Click to view all settings</div></div>';
+  });
+  return html;
+}
+
+/* ============================================================
+   TAB: TRIGGERS
+   ============================================================ */
+function tabTriggers(triggers) {
+  if (!triggers.length) return '<div class="empty">No triggers found.</div>';
+  var html = '<table class="tbl"><thead><tr><th>Name</th><th>Type</th><th>Filters</th><th>Custom Event</th></tr></thead><tbody>';
+  triggers.forEach(function(t) {
+    html += '<tr><td style="font-weight:700">' + esc(t.name) + '</td><td>' + mkChip(t.type||'—') + '</td><td style="color:var(--mu)">' + (t.filter||[]).length + '</td><td>' + ((t.customEventFilter||[]).length ? mkChip('yes','b') : '<span style="color:var(--mu)">—</span>') + '</td></tr>';
+  });
+  return html + '</tbody></table>';
+}
+
+/* ============================================================
+   TAB: VARIABLES
+   ============================================================ */
+function tabVariables(vars) {
+  if (!vars.length) return '<div class="empty">No variables found.</div>';
+  var html = '<table class="tbl"><thead><tr><th>Name</th><th>Type</th><th>Reference</th></tr></thead><tbody>';
+  vars.forEach(function(v) { html += '<tr><td style="font-weight:700">' + esc(v.name) + '</td><td>' + mkChip(v.type||v.variableType||'—') + '</td><td style="font-family:monospace;color:var(--green)">{{' + esc(v.name) + '}}</td></tr>'; });
+  return html + '</tbody></table>';
+}
+
+/* ============================================================
+   TAB: RECS
+   ============================================================ */
+function tabRecs(ai) {
+  if (!ai || (!ai.positives && !ai.recommendations)) return '<div class="empty">Add your Groq API key to get AI-powered recommendations.</div>';
+  var html = '';
+  if (ai.positives && ai.positives.length) {
+    html += '<div style="margin-bottom:20px">';
+    toArr(ai.positives).forEach(function(p) { html += '<div style="padding:8px 0;border-bottom:1px solid #1c2128;font-size:13px;color:var(--green)">' + esc(toStr(p)) + '</div>'; });
+    html += '</div>';
+  }
+  html += '<div style="margin-bottom:12px;font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px">Recommendations</div>';
+  if (!ai.recommendations || !ai.recommendations.length) { html += '<div class="empty">No recommendations — implementation looks good!</div>'; }
+  else {
+    toArr(ai.recommendations).forEach(function(r) {
+      var pri = toStr(r.priority) || 'low', c = pri === 'high' ? 'var(--red)' : pri === 'medium' ? 'var(--yellow)' : 'var(--blue)';
+      html += '<div class="iss" style="border-left-color:' + c + ';background:var(--s2)"><div class="iss-title">' + esc(toStr(r.title)) + '</div><div class="iss-detail">' + esc(toStr(r.detail)) + '</div>' + mkChip(pri + ' priority') + '</div>';
+    });
+  }
+  return html;
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+function openModal(key) {
+  var tag = tagStore[key];
+  if (!tag) return;
+  var typeMap = { gaawc: 'GA4 Config', googtag: 'Google Tag', gaawe: 'GA4 Event', html: 'Custom HTML', img: 'Custom Image', flc: 'Floodlight Counter', fls: 'Floodlight Sales' };
+  var typeLabel = typeMap[tag.type] || (tag.type || 'Tag');
+  var typeColor = (tag.type === 'gaawc' || tag.type === 'googtag') ? 'b' : tag.type === 'gaawe' ? 'g' : '';
+  byId('modal-badge').innerHTML = mkChip(typeLabel, typeColor);
+  byId('modal-title').textContent = tag.name || 'Tag Details';
+
+  var trigMap = {};
+  if (appData && appData.gtm && appData.gtm.triggers) appData.gtm.triggers.forEach(function(t) { trigMap[t.triggerId] = t; });
+
+  var html = '';
+  html += '<div class="msec"><div style="display:flex;gap:8px;flex-wrap:wrap">' + (tag.paused ? '<span class="badge b-warn">Paused</span>' : '<span class="badge b-ok">Active</span>') + (tag.tagId ? mkChip('ID: ' + tag.tagId) : '') + (tag.type ? mkChip('Type: ' + tag.type) : '') + '</div></div>';
+
+  var params = tag.parameter || [];
+  if (params.length) {
+    html += '<div class="msec"><div class="msec-title">Parameters (' + params.length + ')</div>';
+    params.forEach(function(p) { html += '<div class="prow"><div class="pkey">' + esc(p.key||'') + '</div><div>' + renderParamValue(p) + '</div></div>'; });
+    html += '</div>';
+  }
+
+  var firingIds = tag.firingTriggerId || [];
+  if (firingIds.length) {
+    html += '<div class="msec"><div class="msec-title">Firing Triggers (' + firingIds.length + ')</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
+    firingIds.forEach(function(id) {
+      var t = trigMap[id], name = t ? t.name : 'ID: ' + id, type = t ? t.type : '';
+      html += '<div class="tpill"><span style="color:var(--green);font-weight:700">+</span><span style="font-weight:600">' + esc(name) + '</span>' + (type ? '<span style="color:var(--mu);font-size:10px">' + esc(type) + '</span>' : '') + '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  var blockIds = tag.blockingTriggerId || [];
+  if (blockIds.length) {
+    html += '<div class="msec"><div class="msec-title">Blocking Triggers (' + blockIds.length + ')</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
+    blockIds.forEach(function(id) {
+      var t = trigMap[id], name = t ? t.name : 'ID: ' + id;
+      html += '<div class="tpill"><span style="color:var(--red);font-weight:700">x</span><span style="font-weight:600">' + esc(name) + '</span></div>';
+    });
+    html += '</div></div>';
+  }
+
+  // Consent settings
+  if (tag.consentSettings) {
+    var cs = tag.consentSettings;
+    html += '<div class="msec"><div class="msec-title">Consent Settings</div>';
+    html += '<div class="prow"><div class="pkey">Status</div><div>' + mkChip(cs.consentStatus || 'notSet', cs.consentStatus === 'needed' ? 'g' : cs.consentStatus === 'notNeeded' ? 'b' : 'y') + '</div></div>';
+    if (cs.consentStatus === 'needed') {
+      // Try to extract types
+      var types = [];
+      if (cs.consentType) {
+        try {
+          var ct = cs.consentType;
+          if (ct.type === 'list' && ct.list) ct.list.forEach(function(item) { if (item.type === 'map' && item.map) item.map.forEach(function(m) { if (m.key === 'consentType' && m.value) types.push(m.value); }); });
+          else if (Array.isArray(ct)) ct.forEach(function(i) { if (i.value) types.push(i.value); });
+        } catch(e) {}
+      }
+      if (types.length) html += '<div class="prow"><div class="pkey">Consent Types</div><div>' + types.map(function(t) { return mkChip(t, t === 'analytics_storage' ? 'g' : 'b'); }).join('') + '</div></div>';
+    }
+    html += '</div>';
+  }
+
+  var usedVars = extractVars(tag);
+  if (usedVars.length) {
+    html += '<div class="msec"><div class="msec-title">Variables Used (' + usedVars.length + ')</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
+    usedVars.forEach(function(v) { html += '<span class="chip cg" style="font-family:monospace">{{' + esc(v) + '}}</span>'; });
+    html += '</div></div>';
+  }
+
+  html += '<div class="msec"><button class="raw-btn" id="raw-toggle-btn">Show raw JSON</button><pre class="code" id="raw-json-block" style="display:none;margin-top:10px">' + esc(JSON.stringify(tag, null, 2)) + '</pre></div>';
+
+  byId('modal-body').innerHTML = html;
+  var rawBtn = byId('raw-toggle-btn');
+  if (rawBtn) rawBtn.addEventListener('click', function() {
+    var pre = byId('raw-json-block'); if (!pre) return;
+    var hidden = pre.style.display === 'none';
+    pre.style.display = hidden ? 'block' : 'none'; rawBtn.textContent = hidden ? 'Hide raw JSON' : 'Show raw JSON';
+  });
+
+  byId('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() { byId('modal-overlay').classList.remove('open'); document.body.style.overflow = ''; }
+
+function renderParamValue(p) {
+  if (!p) return '<span style="color:var(--mu)">—</span>';
+  if (p.type === 'list') {
+    var items = p.list || []; if (!items.length) return '<span style="color:var(--mu)">[empty list]</span>';
+    var out = '<div style="display:flex;flex-direction:column;gap:3px">';
+    items.slice(0, 8).forEach(function(item, i) { out += '<div style="background:var(--s3);border-radius:4px;padding:3px 7px;font-size:10px;font-family:monospace"><span style="color:var(--mu)">#' + (i+1) + ' </span>' + esc(JSON.stringify(item.map || item)) + '</div>'; });
+    if (items.length > 8) out += '<div style="color:var(--mu);font-size:11px">...and ' + (items.length-8) + ' more</div>';
+    return out + '</div>';
+  }
+  if (p.type === 'map') return '<pre class="code" style="font-size:10px;padding:6px">' + esc(JSON.stringify(p.map, null, 2)) + '</pre>';
+  var val = String(p.value || ''); if (!val) return '<span style="color:var(--mu)">—</span>';
+  if (/\{\{.+\}\}/.test(val))           return '<span style="color:var(--green);font-family:monospace">' + esc(val) + '</span>';
+  if (val === 'true' || val === 'false') return '<span style="color:var(--purple)">' + esc(val) + '</span>';
+  if (/^\d+(\.\d+)?$/.test(val))        return '<span style="color:var(--yellow)">' + esc(val) + '</span>';
+  return '<span style="color:var(--blue)">' + esc(val) + '</span>';
+}
+
+function extractVars(tag) {
+  var text = JSON.stringify(tag), matches = text.match(/\{\{([^}]+)\}\}/g) || [];
+  var seen = {}, result = [];
+  matches.forEach(function(m) { var name = m.replace(/^\{\{|\}\}$/g,'').trim(); if (!seen[name]) { seen[name]=true; result.push(name); } });
+  return result;
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function byId(id)       { return document.getElementById(id); }
+function show(id)       { var e = byId(id); if (e) e.style.display = 'block'; }
+function hide(id)       { var e = byId(id); if (e) e.style.display = 'none'; }
+function setTxt(id, v)  { var e = byId(id); if (e) e.textContent = v; }
+
+function mkOpt(val, label) { var o = document.createElement('option'); o.value = val; o.textContent = label; return o.outerHTML; }
+function mkChip(text, colorClass) { var d = document.createElement('span'); d.className = 'chip' + (colorClass ? ' c' + colorClass : ''); d.textContent = text; return d.outerHTML; }
+function srow(k, v) { return '<div class="srow"><span>' + esc(k) + '</span><span>' + v + '</span></div>'; }
+function resetSel(id) { var e = byId(id); if (e) { e.innerHTML = '<option value="">—</option>'; e.disabled = true; } }
+
+function esc(s) { var d = document.createElement('div'); d.textContent = (s == null) ? '' : String(s); return d.innerHTML; }
+function safeAttr(s) { return String(s || '').replace(/['"<>&]/g, ''); }
+
+function setProgress(pct, label) {
+  byId('pbar').style.width = pct + '%'; byId('prog-pct').textContent = pct + '%';
+  var lbl = byId('prog-label'); lbl.innerHTML = '';
+  if (pct < 100) { var sp = document.createElement('span'); sp.className = 'loader'; lbl.appendChild(sp); }
+  lbl.appendChild(document.createTextNode(label));
+  plog(label, pct === 100 ? 'ok' : '');
+}
+
+function plog(msg, cls) {
+  var el = byId('plog'), line = document.createElement('div');
+  line.className = 'pl' + (cls ? ' ' + cls : '');
+  line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + String(msg);
+  el.appendChild(line); el.scrollTop = el.scrollHeight;
+}
+
+function toast(msg, type) {
+  var t = byId('toast'); t.textContent = msg; t.className = 'toast ' + (type || '') + ' show';
+  setTimeout(function() { t.className = 'toast'; }, 3500);
+}
+
+function resetUI() {
+  appData = null; rtProp = null; tagStore = {};
+  hide('results'); hide('prog'); hide('btn-export');
+  ['c-score','c-gtm','c-consent-mini','c-ga4','c-no-ga4','c-mid','c-rt'].forEach(hide);
+  byId('btn-run').disabled = false;
+}
+
+function exportJSON() {
+  if (!appData) return;
+  var blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'audit-m8-report.json'; a.click(); URL.revokeObjectURL(a.href);
+  toast('Report exported!', 'ok');
+}
+/* ============================================================
+   CM360 — STANDALONE EXPLORER
+   ============================================================ */
+var cm360SelectedProfile = null;
+var cm360SelectedAdvertiser = null;
+var cm360Advertisers = [];
+
+function loadCm360Profiles() {
+  var sel = byId('sel-cm360-profile');
+  sel.innerHTML = '<option value="">Loading...</option>';
+  google.script.run
+.withSuccessHandler(function(r) {
+  if (!r.ok || !r.data.length) { sel.innerHTML = '<option value="">No profiles found</option>'; toast(r.error || 'No CM360 profiles found', 'err'); return; }
+  var html = '<option value="">— select profile —</option>';
+  r.data.sort(function(a, b) { return a.accountName.localeCompare(b.accountName); });
+  r.data.forEach(function(p) { html += '<option value="' + safeAttr(p.profileId) + '">' + esc(p.accountName) + ' (' + esc(p.userName) + ')</option>'; });
+      sel.innerHTML = html;
+      toast('Loaded ' + r.data.length + ' CM360 profiles', 'ok');
+    })
+    .withFailureHandler(function(e) { sel.innerHTML = '<option value="">Error</option>'; toast(e.message, 'err'); })
+    .getCm360Profiles();
+}
+
+function onCm360ProfileSelect() {
+  var profileId = byId('sel-cm360-profile').value;
+  cm360SelectedProfile = profileId;
+  var advSel = byId('sel-cm360-advertiser');
+  byId('btn-load-floodlight').disabled = true;
+  if (!profileId) { advSel.innerHTML = '<option value="">—</option>'; advSel.disabled = true; return; }
+
+  advSel.innerHTML = '<option value="">Loading advertisers...</option>';
+  advSel.disabled = true;
+  google.script.run
+    .withSuccessHandler(function(r) {
+  if (!r.ok || !r.data.length) { advSel.innerHTML = '<option value="">No advertisers found</option>'; toast(r.error || 'No advertisers', 'err'); return; }
+  cm360Advertisers = r.data.slice().sort(function(a, b) { return a.name.localeCompare(b.name); });
+  var html = '<option value="">— select advertiser —</option>';
+  cm360Advertisers.forEach(function(a) { html += '<option value="' + safeAttr(a.id) + '">' + esc(a.name) + '</option>'; });
+      advSel.innerHTML = html; advSel.disabled = false;
+      toast('Loaded ' + r.data.length + ' advertisers', 'ok');
+    })
+    .withFailureHandler(function(e) { advSel.innerHTML = '<option value="">Error</option>'; toast(e.message, 'err'); })
+    .getCm360Advertisers(profileId);
+}
+
+function onCm360AdvertiserSelect() {
+  var advId = byId('sel-cm360-advertiser').value;
+  cm360SelectedAdvertiser = advId;
+  byId('btn-load-floodlight').disabled = !advId;
+}
+
+function loadCm360Floodlight() {
+  if (!cm360SelectedProfile || !cm360SelectedAdvertiser) return;
+  var resultDiv = byId('cm360-standalone-result');
+  resultDiv.innerHTML = '<div class="empty" style="padding:20px"><span class="loader"></span>Loading Floodlight activities...</div>';
+
+  google.script.run
+    .withSuccessHandler(function(r) {
+      if (!r.ok) { resultDiv.innerHTML = '<div class="alert alert-y">' + esc(r.error) + '</div>'; return; }
+      renderCm360FloodlightStandalone(r.data);
+    })
+    .withFailureHandler(function(e) { resultDiv.innerHTML = '<div class="alert alert-y">' + esc(e.message) + '</div>'; })
+    .getFloodlightActivities(cm360SelectedProfile, cm360SelectedAdvertiser);
+}
+
+function renderCm360FloodlightStandalone(activities) {
+  var resultDiv = byId('cm360-standalone-result');
+  if (!activities.length) { resultDiv.innerHTML = '<div class="empty">No Floodlight activities found for this advertiser.</div>'; return; }
+
+  window._cm360Activities = activities;
+  window._cm360HitCounts = [];
+
+  var advertiser = cm360Advertisers.find(function(a) { return a.id === cm360SelectedAdvertiser; });
+  var floodlightConfigId = advertiser ? advertiser.floodlightConfigurationId : null;
+
+  var html = '<div class="flex" style="margin-bottom:12px">';
+  html += '<div style="font-size:12px;color:var(--mu)">' + activities.length + ' activities found</div>';
+  html += '<button class="btn btn-green btn-sm mla" onclick="loadCm360HitCounts(\'' + safeAttr(floodlightConfigId) + '\')">Get Hit Counts (30d) — takes 1-3 min</button>';
+  html += '<button class="btn btn-ghost btn-sm" onclick="exportCm360Sheet()">Export to Sheets</button>';
+  html += '</div>';
+  html += '<div id="cm360-hitcounts-status"></div>';
+  html += '<table class="tbl"><thead><tr><th>Activity Name</th><th>Tag String</th><th>Type</th><th>Status</th><th>Counting</th><th id="th-hits" style="display:none">Hits (30d)</th></tr></thead><tbody id="cm360-activities-tbody">';
+  activities.forEach(function(a) {
+    html += '<tr data-activity-id="' + safeAttr(a.id) + '">';
+    html += '<td style="font-weight:700">' + esc(a.name) + '</td>';
+    html += '<td style="font-family:monospace;font-size:11px">' + esc(a.tagString || '—') + '</td>';
+    html += '<td>' + mkChip(a.floodlightTagType || '—', 'b') + '</td>';
+    html += '<td>' + (a.status === 'ACTIVE' ? mkChip('Active', 'g') : mkChip(a.status, 'y')) + '</td>';
+    html += '<td style="font-size:11px;color:var(--mu)">' + esc(a.countingMethod || '—') + '</td>';
+    html += '<td class="hit-count-cell" style="display:none">—</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  resultDiv.innerHTML = html;
+}
+
+var cm360ReportState = null;
+
+function loadCm360HitCounts(floodlightConfigId) {
+  if (!floodlightConfigId || floodlightConfigId === 'null') { toast('No Floodlight Configuration ID found for this advertiser', 'err'); return; }
+  var statusDiv = byId('cm360-hitcounts-status');
+  statusDiv.innerHTML = '<div class="alert alert-b" id="cm360-progress-msg"><span class="loader"></span>Starting report — this usually takes 30-90 seconds, occasionally longer for large advertisers...</div>';
+
+  google.script.run
+    .withSuccessHandler(function(r) {
+      if (!r.ok) { showHitCountError(r.error, floodlightConfigId); return; }
+      cm360ReportState = { profileId: cm360SelectedProfile, reportId: r.reportId, fileId: r.fileId, startTime: Date.now() };
+      pollCm360ReportStatus();
+    })
+    .withFailureHandler(function(e) { showHitCountError(e.message, floodlightConfigId); })
+    .startFloodlightReport(cm360SelectedProfile, cm360SelectedAdvertiser, floodlightConfigId);
+}
+
+function pollCm360ReportStatus() {
+  if (!cm360ReportState) return;
+  var elapsed = Math.round((Date.now() - cm360ReportState.startTime) / 1000);
+  var msgEl = byId('cm360-progress-msg');
+  if (msgEl) msgEl.innerHTML = '<span class="loader"></span>Generating report — ' + elapsed + 's elapsed. This can take up to a few minutes for larger advertisers.';
+
+  google.script.run
+    .withSuccessHandler(function(r) {
+      if (!r.ok) { showHitCountError(r.error, null, true); return; }
+      if (r.done) {
+        byId('cm360-hitcounts-status').innerHTML = '<div class="alert alert-g">Hit counts loaded (last 30 days)</div>';
+        window._cm360HitCounts = r.data; 
+        applyCm360HitCounts(r.data);
+        cm360ReportState = null;
+        return;
+      }
+      setTimeout(pollCm360ReportStatus, 5000);
+    })
+    .withFailureHandler(function(e) { showHitCountError(e.message, null, true); })
+    .checkFloodlightReportStatus(cm360ReportState.profileId, cm360ReportState.reportId, cm360ReportState.fileId);
+}
+
+function showHitCountError(errMsg, floodlightConfigId, canResume) {
+  var statusDiv = byId('cm360-hitcounts-status');
+  var html = '<div class="alert alert-y">';
+  html += '<div style="margin-bottom:8px">' + esc(errMsg) + '</div>';
+  if (canResume && cm360ReportState) {
+    html += '<button class="btn btn-blue btn-sm" onclick="pollCm360ReportStatus()">Check again</button>';
+    html += '<span style="font-size:11px;color:var(--mu);margin-left:8px">Report may still be processing on CM360\'s side — checking again resumes without restarting.</span>';
+  } else if (floodlightConfigId) {
+    html += '<button class="btn btn-blue btn-sm" onclick="loadCm360HitCounts(\'' + safeAttr(floodlightConfigId) + '\')">Start new report</button>';
+  }
+  html += '</div>';
+  statusDiv.innerHTML = html;
+}
+
+function applyCm360HitCounts(rows) {
+  byId('th-hits').style.display = '';
+  var byActivityId = {};
+  rows.forEach(function(row) {
+    var id = row['Activity ID'];
+    var clicks = parseFloat(row['Click-through Conversions'] || 0);
+    var views = parseFloat(row['View-through Conversions'] || 0);
+    byActivityId[id] = clicks + views;
+  });
+  document.querySelectorAll('#cm360-activities-tbody tr').forEach(function(tr) {
+    var actId = tr.getAttribute('data-activity-id');
+    var cell = tr.querySelector('.hit-count-cell');
+    cell.style.display = '';
+    var total = byActivityId[actId];
+    cell.innerHTML = (total !== undefined) ? '<span class="chip cg">' + total.toLocaleString() + '</span>' : '<span style="color:var(--mu)">0</span>';
+  });
+}
+
+/* ============================================================
+   TAB: FLOODLIGHT (inside main audit results)
+   ============================================================ */
+function tabFloodlight(gtm) {
+  var flTags = gtm.floodlightTags || [];
+  if (!flTags.length) return '<div class="empty">No Floodlight tags (flc/fls) found in this GTM container.<br><br>Use the <b>CM360</b> tab to check activities independently.</div>';
+
+  var html = '<div class="alert alert-b" style="font-size:12px;margin-bottom:16px">Found ' + flTags.length + ' Floodlight tag(s) in GTM. Use the CM360 tab to match these against real CM360 activities and get hit counts.</div>';
+  html += '<table class="tbl"><thead><tr><th>Tag Name</th><th>Type</th><th>Group Tag</th><th>Activity Tag</th><th>Advertiser ID</th><th>Status</th></tr></thead><tbody>';
+  flTags.forEach(function(t) {
+    html += '<tr' + (t.paused ? ' style="opacity:.55"' : '') + '>';
+    html += '<td style="font-weight:700">' + esc(t.name) + '</td>';
+    html += '<td>' + mkChip(t.type, t.type === 'Sales' ? 'g' : 'b') + '</td>';
+    html += '<td style="font-family:monospace">' + esc(t.groupTag || '—') + '</td>';
+    html += '<td style="font-family:monospace">' + esc(t.activityTag || '—') + '</td>';
+    html += '<td style="font-family:monospace;color:var(--mu)">' + esc(t.advertiserId || '—') + '</td>';
+    html += '<td>' + (t.paused ? mkChip('Paused', 'y') : mkChip('Active', 'g')) + '</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  return html;
+}
+/* ============================================================
+   TAB: GOOGLE ADS
+   ============================================================ */
+function tabGoogleAds(gtm, issues) {
+  var adsTags = gtm.googleAdsTags || [];
+  if (!adsTags.length) return '<div class="empty">No Google Ads tags (Conversion Tracking / Remarketing) found in this GTM container.</div>';
+
+  var html = '<div class="alert alert-b" style="font-size:12px;margin-bottom:16px">Found ' + adsTags.length + ' Google Ads tag(s) in GTM.</div>';
+
+  if (issues.length) {
+    var counts = { critical: 0, warning: 0, info: 0 };
+    issues.forEach(function(is) { counts[is.severity] = (counts[is.severity] || 0) + 1; });
+    html += '<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">';
+    if (counts.critical) html += mkChip(counts.critical + ' Critical', 'r');
+    if (counts.warning)  html += mkChip(counts.warning  + ' Warning',  'y');
+    if (counts.info)     html += mkChip(counts.info     + ' Info',     'b');
+    html += '</div>';
+
+    issues.forEach(function(is) {
+      var cls = is.severity === 'critical' ? 'ic-c' : is.severity === 'warning' ? 'ic-w' : 'ic-i';
+      var icon = is.severity === 'critical' ? '&#128308;' : is.severity === 'warning' ? '&#128993;' : '&#128309;';
+      html += '<div class="iss ' + cls + '"><div class="iss-title">' + icon + ' ' + esc(is.title) + '</div>';
+      html += '<div class="iss-detail">' + esc(is.detail) + '</div>';
+      html += '<div class="iss-fix"><span style="color:var(--green);font-weight:700;flex-shrink:0">&#128161; Fix:</span><span>' + esc(is.fix) + '</span></div></div>';
+    });
+  }
+
+  html += '<div class="card-title" style="margin:20px 0 12px">Tag Details</div>';
+  html += '<table class="tbl"><thead><tr><th>Tag Name</th><th>Type</th><th>Conversion ID</th><th>Label</th><th>Value</th><th>Currency</th><th>Consent</th><th>Status</th></tr></thead><tbody>';
+  adsTags.forEach(function(t) {
+    var consentBadge = t.consentStatus === 'needed' ? mkChip('Set', 'g') : t.consentStatus === 'notNeeded' ? mkChip('Not needed', 'b') : mkChip('Missing', 'r');
+    html += '<tr' + (t.paused ? ' style="opacity:.55"' : '') + '>';
+    html += '<td style="font-weight:700">' + esc(t.name) + '</td>';
+    html += '<td>' + mkChip(t.type, t.type === 'Conversion Tracking' ? 'g' : 'b') + '</td>';
+    html += '<td style="font-family:monospace">' + esc(t.conversionId || '—') + '</td>';
+    html += '<td style="font-family:monospace">' + esc(t.conversionLabel || '—') + '</td>';
+    html += '<td>' + esc(t.conversionValue || '—') + '</td>';
+    html += '<td>' + esc(t.currencyCode || '—') + '</td>';
+    html += '<td>' + consentBadge + '</td>';
+    html += '<td>' + (t.paused ? mkChip('Paused', 'y') : mkChip('Active', 'g')) + '</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  return html;
+}
+function exportToSheet() {
+  if (!appData) return;
+  var btn = byId('btn-export-sheet');
+  btn.textContent = 'Generating...'; btn.disabled = true;
+  google.script.run
+    .withSuccessHandler(function(r) {
+      btn.textContent = 'Export to Sheets'; btn.disabled = false;
+      if (!r.ok) { toast(r.error, 'err'); return; }
+      toast('Sheet created!', 'ok');
+      showSheetLink(r.url);
+    })
+    .withFailureHandler(function(e) { btn.textContent = 'Export to Sheets'; btn.disabled = false; toast(e.message, 'err'); })
+    .exportToSheet(appData);
+}
+
+function showSheetLink(url) {
+  var existing = byId('sheet-link-toast');
+  if (existing) existing.remove();
+  var div = document.createElement('div');
+  div.id = 'sheet-link-toast';
+  div.style.cssText = 'position:fixed;bottom:60px;right:18px;background:var(--s1);border:1px solid var(--green);padding:14px 18px;border-radius:8px;z-index:9999;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.4)';
+  div.innerHTML = '✅ Sheet created — <a href="' + url + '" target="_blank" style="color:var(--green);font-weight:700;text-decoration:underline">Open it here</a> &nbsp;<button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:16px">×</button>';
+  document.body.appendChild(div);
+}
+function exportToSheet() {
+  if (!appData) return;
+  var btn = byId('btn-export-sheet');
+  btn.textContent = 'Generating...'; btn.disabled = true;
+  google.script.run
+    .withSuccessHandler(function(r) {
+      btn.textContent = 'Export to Sheets'; btn.disabled = false;
+      if (!r.ok) { toast(r.error, 'err'); return; }
+      toast('Sheet created!', 'ok');
+      showSheetLink(r.url);
+    })
+    .withFailureHandler(function(e) { btn.textContent = 'Export to Sheets'; btn.disabled = false; toast(e.message, 'err'); })
+    .exportToSheet(appData);
+}
+
+function showSheetLink(url) {
+  var existing = byId('sheet-link-toast');
+  if (existing) existing.remove();
+  var div = document.createElement('div');
+  div.id = 'sheet-link-toast';
+  div.style.cssText = 'position:fixed;bottom:60px;right:18px;background:var(--s1);border:1px solid var(--green);padding:14px 18px;border-radius:8px;z-index:9999;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.4)';
+  div.innerHTML = '✅ Sheet created — <a href="' + url + '" target="_blank" style="color:var(--green);font-weight:700;text-decoration:underline">Open it here</a> &nbsp;<button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--mu);cursor:pointer;font-size:16px">×</button>';
+  document.body.appendChild(div);
+}
+
+/* ============================================================
+   CM360 — EXPORT TO SHEETS
+   ============================================================ */
+function exportCm360Sheet() {
+  var profileSel = byId('sel-cm360-profile');
+  var advSel = byId('sel-cm360-advertiser');
+  var profileName = profileSel.options[profileSel.selectedIndex] ? profileSel.options[profileSel.selectedIndex].text : '';
+  var advertiserName = advSel.options[advSel.selectedIndex] ? advSel.options[advSel.selectedIndex].text : '';
+
+  toast('Generating sheet...', 'ok');
+  google.script.run
+    .withSuccessHandler(function(r) {
+      if (!r.ok) { toast(r.error, 'err'); return; }
+      toast('Sheet created!', 'ok');
+      showSheetLink(r.url);
+    })
+    .withFailureHandler(function(e) { toast(e.message, 'err'); })
+    .exportCm360ToSheet(profileName, advertiserName, window._cm360Activities || [], window._cm360HitCounts || []);
+}
+</script>
+
+</body></html>
